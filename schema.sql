@@ -43,8 +43,8 @@ CREATE TABLE shapeEntries (
 CREATE TABLE stopTimes (
 	stopTimePK SERIAL PRIMARY KEY,
 	trip_id VARCHAR(12),
-	arrival_time VARCHAR(16),
-	departure_time VARCHAR(16),
+	arrival_time INT,
+	departure_time INT,
 	stop_id VARCHAR(16),
 	stop_sequence VARCHAR(16),
 	pickup_type VARCHAR(8),

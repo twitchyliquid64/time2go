@@ -125,30 +125,11 @@ def updateShapeData(conn, bus="buses_SMBSC001"):
     curs.close()
 
 
-def updateShapeData(conn, bus="buses_SMBSC001"):
-    curs = conn.cursor()
-    stopsRaw = request("http://api.jxeeno.com/tfnsw/static/schedule/" + bus + "/latest/shapes.txt")
-    stopReader = csv.DictReader(stopsRaw.split("\n"), delimiter=',', quotechar='"')
-    count = 0
+def parseTime(inp,): #return the unix time
+    s = inp.split(":")
+    r = int(s[0]) * 60 * 60 + int(s[1]) * 60 + int(s[2])
+    return r
 
-    query = "INSERT INTO shapeEntries (shape_id,lat,lon,sequence,shape_dist_traveled,imported) VALUES "
-    for row in stopReader:
-        count += 1
-
-        l = " ('" + row['shape_id'] + "', '" + row['shape_pt_lat'] + "', '" + row['shape_pt_lon'] + "', '"
-        l += row['shape_pt_sequence'] + "', '" + row['shape_dist_traveled'] + "', "
-        l += " now())"
-        #print l
-        query += "\n" + l + ", "
-    if count == 0:
-        print "\t\tIgnoring empty set"
-        return
-    print "\t\texec"
-    curs.execute(query[:-2])
-    print "\t\tcommit"
-    conn.commit()
-    print "\t\tdone"
-    curs.close()
 
 def updateStopTimes(conn, bus="buses_SMBSC001"):
     curs = conn.cursor()
@@ -160,7 +141,7 @@ def updateStopTimes(conn, bus="buses_SMBSC001"):
     for row in stopReader:
         count += 1
 
-        l = " ('" + row['trip_id'] + "', '" + row['arrival_time'] + "', '" + row['departure_time'] + "', '"
+        l = " ('" + row['trip_id'] + "', '" + str(parseTime(row['arrival_time'])) + "', '" + str(parseTime(row['departure_time'])) + "', '"
         l += row['stop_id'] + "', '" + row['stop_sequence'] + "', '"
         l += row['pickup_type'] + "', '" + row['drop_off_type'] + "', '"
         l += row['shape_dist_traveled'] + "', '" + row['timepoint'] + "', '"
@@ -213,27 +194,27 @@ def updateTrip(conn, bus="buses_SMBSC001"):
 
 
 
-#print "Stop times data:"
-#for bus in bus_endpoints:
-#    print "\t" + bus
-#    updateStopTimes(conn, bus)
+print "Stop times data:"
+for bus in bus_endpoints:
+    print "\t" + bus
+    updateStopTimes(conn, bus)
 
 #print "Shape data:"
 #for bus in bus_endpoints:
 #    print "\t" + bus
 #    updateShapeData(conn, bus)
 
-print "Route data:"
-for bus in bus_endpoints:
-    print "\t" + bus
-    updateRouteData(conn, bus)
+#print "Route data:"
+#for bus in bus_endpoints:
+#    print "\t" + bus
+#    updateRouteData(conn, bus)
 
-print "Stop data:"
-for bus in bus_endpoints:
-    print "\t" + bus
-    updateStopData(conn, bus)
+#print "Stop data:"
+#for bus in bus_endpoints:
+#    print "\t" + bus
+#    updateStopData(conn, bus)
 
-print "Trip data:"
-for bus in bus_endpoints:
-    print "\t" + bus
-    updateTrip(conn, bus)
+#print "Trip data:"
+#for bus in bus_endpoints:
+#    print "\t" + bus
+#    updateTrip(conn, bus)
