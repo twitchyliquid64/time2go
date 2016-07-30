@@ -179,10 +179,44 @@ def updateStopTimes(conn, bus="buses_SMBSC001"):
     curs.close()
 
 
-print "Stop times data:"
-for bus in bus_endpoints:
-    print "\t" + bus
-    updateStopTimes(conn, bus)
+def updateTrip(conn, bus="buses_SMBSC001"):
+    curs = conn.cursor()
+    stopsRaw = request("http://api.jxeeno.com/tfnsw/static/schedule/" + bus + "/latest/trips.txt")
+    stopReader = csv.DictReader(stopsRaw.split("\n"), delimiter=',', quotechar='"')
+    count = 0
+
+    query = "INSERT INTO trips (route_id,service_id,trip_id,shape_id,trip_headsign,direction_id,block_id,wheelchair_accessible,trip_note,route_direction,imported) VALUES "
+    for row in stopReader:
+        count += 1
+        row['trip_headsign'] = row['trip_headsign'].replace("'", "''")
+        row['route_direction'] = row['route_direction'].replace("'", "''")
+        row['trip_note'] = row['trip_note'].replace("'", "''")
+
+
+        l = " ('" + row['route_id'] + "', '" + row['service_id'] + "', '" + row['trip_id'] + "', '"
+        l += row['shape_id'] + "', '" + row['trip_headsign'] + "', '"
+        l += row['direction_id'] + "', '" + row['block_id'] + "', '"
+        l += row['wheelchair_accessible'] + "', '" + row['trip_note'] + "', '"
+        l += row['route_direction'] + "', "
+        l += " now())"
+        #print l
+        query += "\n" + l + ", "
+    if count == 0:
+        print "\t\tIgnoring empty set"
+        return
+    print "\t\texec"
+    curs.execute(query[:-2])
+    print "\t\tcommit"
+    conn.commit()
+    print "\t\tdone"
+    curs.close()
+
+
+
+#print "Stop times data:"
+#for bus in bus_endpoints:
+#    print "\t" + bus
+#    updateStopTimes(conn, bus)
 
 #print "Shape data:"
 #for bus in bus_endpoints:
@@ -198,3 +232,8 @@ print "Stop data:"
 for bus in bus_endpoints:
     print "\t" + bus
     updateStopData(conn, bus)
+
+print "Trip data:"
+for bus in bus_endpoints:
+    print "\t" + bus
+    updateTrip(conn, bus)

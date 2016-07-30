@@ -51,7 +51,23 @@ CREATE TABLE stopTimes (
 	drop_off_type VARCHAR(8),
 	shape_dist_traveled VARCHAR(12),
 	timepoint VARCHAR(12),
-	stop_note VARCHAR(100)
+	stop_note VARCHAR(100),
+
+	imported TIMESTAMP
+)
+
+CREATE TABLE trips (
+	tripPK SERIAL PRIMARY KEY,
+	route_id VARCHAR(32),
+	service_id VARCHAR(32),
+	trip_id VARCHAR(32),
+	shape_id VARCHAR(32),
+	trip_headsign VARCHAR(255),
+	direction_id VARCHAR(12),
+	block_id VARCHAR(12),
+	wheelchair_accessible VARCHAR(8),
+	trip_note VARCHAR(255),
+	route_direction VARCHAR(255),
 
 	imported TIMESTAMP
 )
