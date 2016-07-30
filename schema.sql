@@ -28,3 +28,14 @@ CREATE TABLE routes (
 
 	imported TIMESTAMP
 )
+
+CREATE TABLE shapeEntries (
+	shapeEntryPK SERIAL PRIMARY KEY,
+	shape_id VARCHAR(12),
+	lat double precision,
+	lon double precision,
+	sequence VARCHAR(12),
+	shape_dist_traveled VARCHAR(6),
+
+	imported TIMESTAMP
+)

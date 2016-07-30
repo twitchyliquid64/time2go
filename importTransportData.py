@@ -99,6 +99,37 @@ def updateStopData(conn, bus="buses_SMBSC001"):
     curs.close()
 
 
+def updateShapeData(conn, bus="buses_SMBSC001"):
+    curs = conn.cursor()
+    stopsRaw = request("http://api.jxeeno.com/tfnsw/static/schedule/" + bus + "/latest/shapes.txt")
+    stopReader = csv.DictReader(stopsRaw.split("\n"), delimiter=',', quotechar='"')
+    count = 0
+
+    query = "INSERT INTO shapeEntries (shape_id,lat,lon,sequence,shape_dist_traveled,imported) VALUES "
+    for row in stopReader:
+        count += 1
+
+        l = " ('" + row['shape_id'] + "', '" + row['shape_pt_lat'] + "', '" + row['shape_pt_lon'] + "', '"
+        l += row['shape_pt_sequence'] + "', '" + row['shape_dist_traveled'] + "', "
+        l += " now())"
+        #print l
+        query += "\n" + l + ", "
+    if count == 0:
+        print "\t\tIgnoring empty set"
+        return
+    print "\t\texec"
+    curs.execute(query[:-2])
+    print "\t\tcommit"
+    conn.commit()
+    print "\t\tdone"
+    curs.close()
+
+
+print "Shape data:"
+for bus in bus_endpoints:
+    print "\t" + bus
+    updateShapeData(conn, bus)
+
 print "Route data:"
 for bus in bus_endpoints:
     print "\t" + bus
