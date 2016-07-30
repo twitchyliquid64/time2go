@@ -1,0 +1,1 @@
+included template files inherit parent's context dictionary

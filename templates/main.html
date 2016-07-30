@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/angular-material.min.css">
+    <link rel="stylesheet" href="/static/css/r2k9.css">
+    <link rel="stylesheet" href="/static/css/treeview.css">
+    <link rel="stylesheet" href="/static/css/codemirror.css">
+    <link rel="stylesheet" href="/static/fonts/roboto.css">
+    <link rel="stylesheet" href="/static/fonts/material-icons/materialicons.css">
+    <meta name="viewport" content="initial-scale=1" />
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+</head>
+
+<body layout="column" ng-app="baseApp" ng-controller="mainController as mainC">
+    <md-toolbar layout="row">
+        <h1 flex="33" offset="13"><md-icon md-font-library="material-icons" style="font-size: 48px;">gestures</md-icon> ddlCAD</h1>
+        <div class="md-toolbar-tools">
+            <md-button ng-click="mainC.toggle()" hide-gt-sm class="md-icon-button">
+                <md-icon aria-label="Menu" md-svg-icon="/static/img/menu.svg"></md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <div layout="row" flex>
+
+		<!-- sidenav -->
+        <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')" style="padding-left: 22px;">
+        <md-list>
+          <md-subheader class="md-no-sticky">DDL Apps</md-subheader>
+
+          <md-list-item>
+            <md-button style="text-align:left" ng-click="mainC.activate('designer')">
+                <md-icon md-font-library="material-icons">settings_applications</md-icon> Designer
+            </md-button>
+          </md-list-item>
+
+
+          <md-list-item>
+            <md-button style="text-align:left" ng-click="mainC.activate('docs')">
+                <md-icon md-font-library="material-icons">code</md-icon> Documentation
+            </md-button>
+          </md-list-item>
+
+          <md-subheader class="md-no-sticky">DDL Debugging Tools</md-subheader>
+
+          <md-list-item>
+            <md-button style="text-align:left" ng-click="mainC.activate('parse_debug')">
+                <md-icon md-font-library="material-icons">filter_list</md-icon> Parse Debugger
+            </md-button>
+          </md-list-item>
+
+          <md-list-item>
+            <md-button style="text-align:left" ng-click="mainC.activate('eval')">
+                <md-icon md-font-library="material-icons">bug_report</md-icon> Eval Debugger
+            </md-button>
+          </md-list-item>
+
+          <md-subheader class="md-no-sticky">Maker.js Apps</md-subheader>
+
+          <md-list-item>
+            <md-button style="text-align:left" ng-click="mainC.activate('maker_designer')">
+                <md-icon md-font-library="material-icons">filter_list</md-icon> Designer
+            </md-button>
+          </md-list-item>
+
+          <md-list-item>
+            <md-button style="text-align:left" ng-click="mainC.activate('maker_designs')">
+                <md-icon md-font-library="material-icons">bug_report</md-icon> Saved Designs
+            </md-button>
+          </md-list-item>
+        </md-list>
+        </md-sidenav>
+
+        <!-- line by line container for main content -->
+        <div layout="column" flex="99" id="content">
+
+          <md-content layout="column" class="md-padding" ng-show="mainC.focus == 'designer'" ng-controller="designerController">
+            <h2 flex="5">Object Designer</h1>
+
+              <div layout="row" flex>
+                <div layout="column" flex="60">
+                  <div flex="90" layout-fill>
+                    <md-subheader class="md-no-sticky">DDL Code</md-subheader>
+                    <div id="content_main"></div>
+                  </div>
+                </div>
+
+                <div layout="column" flex="89">
+                  <md-subheader class="md-no-sticky">Render Preview
+
+                  <md-icon md-font-library="material-icons" ng-show="isDirty" ng-click="execute()">cached</md-icon>
+
+                  </md-subheader>
+                    <div style="text-align: center;" ng-show="isDirty">
+                        Render preview is out of date! Press <i>Ctrl-R</i> in the editor to rebuild the preview.
+                    </div>
+                  <div ng-hide="isDirty">
+                    <div  ng-show="hasErrors">
+                      <md-list>
+                        <md-list-item ng-repeat="error in errors">
+                          <span class="amber" style="margin-right: 6px">{{error.t}}</span> {{error.o}}
+                        </md-list-item>
+                      </md-list>
+                    </div>
+                    <div flex ng-hide="hasErrors">
+                      <div style="max-height: 650px;" layout-fill id="renderPreviewContainer">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 12px; padding-left: 40px; padding-right: 40px;" layout="row" flex layout-wrap>
+
+                <md-button class="md-raised" style="text-align:left" ng-click="fileSVG()" ng-disabled="isDirty || hasErrors" flex>
+                     <md-icon md-font-library="material-icons">picture_in_picture</md-icon> Download SVG
+                </md-button>
+                <md-button class="md-raised" style="text-align:left" ng-click="fileDXF()" ng-disabled="isDirty || hasErrors" flex>
+                     <md-icon md-font-library="material-icons">extension</md-icon> Download DXF
+                </md-button>
+
+              </div>
+          </md-content>
+
+          <md-content layout="column" flex class="md-padding" ng-show="mainC.focus == 'docs'" ng-controller="documentationController">
+              <h1 flex="5">Documentation</h1>
+
+              <div flex>
+                <h2>Syntactic features</h1>
+              </div>
+
+              <div flex>
+                <h2 >Builtin Reference</h1>
+
+                <div ng-repeat="(name, data) in dynamicDocumentation">
+                  <h3 ><md-icon md-font-library="material-icons">functions</md-icon> {{name}}</h3>
+                  <p ><i>{{data.type}}</i></p>
+                  <p >{{data.desc}}</p>
+                  <pre >{{data.example}}</pre>
+                  <br><br>
+                </div>
+              </div>
+          </md-content>
+
+          <md-content layout="column" flex class="md-padding" ng-show="mainC.focus == 'parse_debug'" ng-controller="parseDebugController">
+              <h1 flex="5">Parse debugger</h1>
+
+              <div layout="row" flex>
+                <div layout="column" flex="60">
+                  <textarea rows="20" columns="15" id="rawcontent_parse"></textarea>
+
+                  <button ng-click="execute()" > <md-icon md-font-library="material-icons">memory</md-icon> Parse</button>
+                  <div flex></div>
+                </div>
+
+                <div layout="column" flex="89">
+                  <div
+                      data-angular-treeview="true"
+                      data-tree-id="parsetree"
+                      data-tree-model="treedata"
+                      data-node-id="id"
+                      data-node-label="nodeName"
+                      data-node-children="children" >
+                  </div>
+                </div>
+              </div>
+          </md-content>
+
+
+          <md-content layout="column" flex class="md-padding" ng-show="mainC.focus == 'eval'" ng-controller="evalDebugController">
+              <h1 flex="5">Eval debugger</h1>
+
+              <div layout="row" flex>
+                <div layout="column" flex="60">
+                  <textarea rows="20" columns="15" id="rawcontent_eval"></textarea>
+
+                  <button ng-click="execute()" > <md-icon md-font-library="material-icons">code</md-icon> Execute</button>
+                  <div flex></div>
+                </div>
+
+                <div layout="column" flex="89">
+                  <div
+                      data-angular-treeview="true"
+                      data-tree-id="evaltree"
+                      data-tree-model="treedata"
+                      data-node-id="id"
+                      data-node-label="n"
+                      data-node-children="children" >
+                  </div>
+                </div>
+              </div>
+          </md-content>
+
+        </div>
+    </div>
+
+    <!-- Angular Material Dependencies -->
+    <script src="/static/js/angular/angular.min.js"></script>
+    <script src="/static/js/angular/angular-animate.min.js"></script>
+    <script src="/static/js/angular/angular-aria.min.js"></script>
+    <script src="/static/js/angular/angular-messages.min.js"></script>
+    <script src="/static/js/angular/angular-material.min.js"></script>
+    <script src="/static/js/angular/angular-dragdrop.min.js"></script>
+    <script src="/static/js/angular/treeview.js"></script>
+    <script src="/static/js/codemirror.js"></script>
+    <script src="/static/js/codemirrormodes/javascript.js"></script>
+    <script src="/static/js/filesaver.min.js"></script>
+    <script src="/static/js/makerjs/browser.maker.js"></script>
+
+    <!-- Base App Dependencies -->
+
+    <!-- Module declaration needs to come first -->
+    <script src="/static/js/app/baseApp.js"></script>
+    <script src="/static/js/app/ddllexer.js"></script>
+    <script src="/static/js/app/ddlparser.js"></script>
+    <script src="/static/js/app/ddlexec.js"></script>
+    <script src="/static/js/app/ddlParaOutline.js"></script>
+    <script src="/static/js/app/ddlbuiltins.js"></script>
+    <script src="/static/js/app/ddlrender.js"></script>
+    <script src="/static/js/app/svgddlrenderer.js"></script>
+    <script src="/static/js/app/dxfddlrenderer.js"></script>
+
+    <!-- Module peripherals can come after in any order -->
+    <script src="/static/js/app/parseDebugController.js"></script>
+    <script src="/static/js/app/evalDebugController.js"></script>
+    <script src="/static/js/app/documentationController.js"></script>
+    <script src="/static/js/app/designerController.js"></script>
+    <script src="/static/js/app/mainController.js"></script>
+
+  </body>
+</html>
