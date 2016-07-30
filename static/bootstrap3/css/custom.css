@@ -1,0 +1,74 @@
+body {
+     margin: 0;
+     background: url('img/pokeball.png');
+     background-size: 440px 400px;
+     background-repeat:no-repeat;
+     background-position: top;
+     font-family: "sans-serif"
+     padding: 30;
+    display: compact;
+}
+
+.glyphicon {
+    font-size: 20px;
+}
+
+.formBack {
+	background-color: #C13939;
+	padding: 7px;
+	color: white;
+}
+
+.titleBack {
+	background-color: #FFFFFF;
+	font-size: 25px;
+	text-align: center;
+	padding-top: 10px;
+	padding-bottom: 4px;
+	font-weight: 300;
+}
+
+.footer {
+	background-color: #C13939
+}
+
+#footerText {
+	color: white;
+	text-align: center;
+}
+
+#map-canvas {
+	width: auto;
+	height: 400px;
+
+}
+
+#pokeStopImg {
+	width: 25px;
+	height: 25px;
+	display: inline-block;
+}
+
+.box {
+	background-color: #D7D7D7;
+}
+
+.img-circle {
+	border-style: solid;
+	border-color: #56E1F6;
+	border-width: 1px;
+	border-radius: 50%;
+	background-color: white;
+	text-align: center;
+	font-weight: 600;
+	width: 60px;
+	height: 60px;
+	line-height: 40px;
+	display: inline-block;
+	padding: 10px;
+	border-spacing: 10px 10px;
+
+}
+
+.innterCircle
+

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src = "https://maps.googleapis.com/maps/api/js?
+                   key=${AIzaSyC2MQBQsRWHr2GfckbagJriR45gMlPdIp8 }&sensor=false">
+</script>
+<script type="text/javascript">
+  function initialize() {
+    var mapOptions = {
+      center: new google.maps.LatLng(-33.8698494, 151.1947438),
+      zoom: 12,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map-canvas"),
+        mapOptions);
+  }
+  google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+<head>
+	<!--<tite>TEST BOOTSTRAP TEMPLATE</tite>-->
+<link rel="stylesheet" type="text/css" href="bootstrap3/css/bootstrap.min.css">
+    <!-- Optional Bootstrap theme -->
+    <link rel="stylesheet" href="bootstrap3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="bootstrap3/css/custom.css">
+
+</head>
+<body>
+<div class = "titleBack">
+	<div>Time2Go</div>
+</div>
+<div class = "formBack">
+
+	<div class="container-fluid">
+		<div class = "row">
+			<div class = "col-xs-2"><button type="button" class="btn btn-info">Back</button>
+ </div>
+			<p text-align = "center" align="center"><span class="label label-info" text-align = "center">M750</span></p>
+		</div>
+	</div>
+	
+</div>
+<div id="map-canvas"></div>
+
+<div class = "footer">
+	<div id = "footerText">Footer</div>
+</div>
+
+<script src="bootstrap3/js/jquery-3.1.0.min.js"></script>
+<script src="bootstrap3/js/bootstrap.min.js"></script>
+</body>
+</html>
