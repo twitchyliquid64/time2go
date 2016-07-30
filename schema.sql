@@ -14,3 +14,17 @@ CREATE TABLE stops (
 
 	imported TIMESTAMP
 );
+
+CREATE TABLE routes (
+	routePK SERIAL PRIMARY KEY,
+	route_id VARCHAR(16),
+	agency_id VARCHAR(16),
+	route_short_name VARCHAR(128),
+	route_long_name VARCHAR(255),
+	route_desc TEXT,
+	route_type VARCHAR(16),
+	route_color VARCHAR(12),
+	route_text_color VARCHAR(12),
+
+	imported TIMESTAMP
+)

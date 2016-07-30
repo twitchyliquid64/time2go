@@ -45,6 +45,32 @@ def request(url): #make a web request to a specified resource and return the dat
     response = opener.open(url)
     return response.read()
 
+def updateRouteData(conn, bus):
+    curs = conn.cursor()
+    stopsRaw = request("http://api.jxeeno.com/tfnsw/static/schedule/" + bus + "/latest/routes.txt")
+    stopReader = csv.DictReader(stopsRaw.split("\n"), delimiter=',', quotechar='"')
+    count = 0
+
+    query = "INSERT INTO routes (route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_color,route_text_color, imported) VALUES "
+    for row in stopReader:
+        count += 1
+        row['route_short_name'] = row['route_short_name'].replace("'", "''")
+        row['route_long_name'] = row['route_long_name'].replace("'", "''")
+
+        l = " ('" + row['route_id'] + "', '" + row['agency_id'] + "', '" + row['route_short_name'] + "', '"
+        l += row['route_long_name'] + "', '" + row['route_desc'] + "', '" + row['route_type'] + "', '"
+        l += row['route_color'] + "', '" + row["route_text_color"] + "', now())"
+        #print l
+        query += "\n" + l + ", "
+    if count == 0:
+        print "\t\tIgnoring empty set"
+        return
+    print "\t\texec"
+    curs.execute(query[:-2])
+    print "\t\tcommit"
+    conn.commit()
+    print "\t\tdone"
+    curs.close()
 
 def updateStopData(conn, bus="buses_SMBSC001"):
     curs = conn.cursor()
@@ -72,6 +98,11 @@ def updateStopData(conn, bus="buses_SMBSC001"):
     print "\t\tdone"
     curs.close()
 
+
+print "Route data:"
+for bus in bus_endpoints:
+    print "\t" + bus
+    updateRouteData(conn, bus)
 
 print "Stop data:"
 for bus in bus_endpoints:
