@@ -72,4 +72,7 @@ CREATE TABLE trips (
 	imported TIMESTAMP
 )
 
+INSERT INTO shape
+SELECT shape_id, ST_ASTEXT(st_makeline(ST_makepoint(lon, lat))) FROM shapeentries GROUP BY shape_id;
+
 CREATE INDEX stop_gidx ON stops USING GIST (pos);
