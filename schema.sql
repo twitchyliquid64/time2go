@@ -76,3 +76,20 @@ INSERT INTO shape
 SELECT shape_id, ST_ASTEXT(st_makeline(ST_makepoint(lon, lat))) FROM shapeentries GROUP BY shape_id;
 
 CREATE INDEX stop_gidx ON stops USING GIST (pos);
+
+
+CREATE TABLE calendar (
+	calendarPK SERIAL PRIMARY KEY,
+	service_id VARCHAR(32),
+	monday VARCHAR(2),
+	tuesday VARCHAR(32),
+	wednesday VARCHAR(32),
+	thursday VARCHAR(32),
+	friday VARCHAR(32),
+	saturday VARCHAR(32),
+	sunday VARCHAR(32),
+
+	start_date DATE,
+	end_date DATE,
+	imported TIMESTAMP
+)

@@ -193,11 +193,43 @@ def updateTrip(conn, bus="buses_SMBSC001"):
     curs.close()
 
 
+def updateCalendar(conn, bus="buses_SMBSC001"):
+    curs = conn.cursor()
+    stopsRaw = request("http://api.jxeeno.com/tfnsw/static/schedule/" + bus + "/latest/calendar.txt")
+    stopReader = csv.DictReader(stopsRaw.split("\n"), delimiter=',', quotechar='"')
+    count = 0
 
-print "Stop times data:"
+    query = "INSERT INTO calendar (service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date,imported) VALUES "
+    for row in stopReader:
+        count += 1
+
+        l = " ('" + row['service_id'] + "', '" + row['monday'] + "', '" + row['tuesday'] + "', '"
+        l += row['wednesday'] + "', '" + row['thursday'] + "', '"
+        l += row['friday'] + "', '" + row['saturday'] + "', '"
+        l += row['sunday'] + "', '" + row['start_date'] + "', '"
+        l += row['end_date'] + "', "
+        l += " now())"
+        #print l
+        query += "\n" + l + ", "
+    if count == 0:
+        print "\t\tIgnoring empty set"
+        return
+    print "\t\texec"
+    curs.execute(query[:-2])
+    print "\t\tcommit"
+    conn.commit()
+    print "\t\tdone"
+    curs.close()
+
+print "Calendar data:"
 for bus in bus_endpoints:
     print "\t" + bus
-    updateStopTimes(conn, bus)
+    updateCalendar(conn, bus)
+
+#print "Stop times data:"
+#for bus in bus_endpoints:
+#    print "\t" + bus
+#    updateStopTimes(conn, bus)
 
 #print "Shape data:"
 #for bus in bus_endpoints:
