@@ -18,7 +18,7 @@ def json_serial(obj):
     raise TypeError ("Type not serializable")
 
 mainQ = """
-SELECT t.*
+SELECT t.*, s1.stop_id, s2.stop_id
     FROM
         stops s1, stops s2,
         stoptimes st2,stoptimes st1,
@@ -40,9 +40,27 @@ SELECT t.*
             0.005
         ) AND
         t.trip_id = st1.trip_id
-    GROUP BY t.tripPK;
+    GROUP BY t.tripPK, s1.stop_id, s2.stop_id
+    LIMIT 8;
 """
 
+getPolyQ = """
+SELECT St_AsText(ST_BUFFER(ST_SetSRID(ST_LineSubstring(s.geom,
+        ST_LineLocatePoint(s.geom, s1.pos),
+        ST_LineLocatePoint(s.geom, s2.pos)
+    ),4283)::geography,25))
+FROM
+    stops s1,
+    stops s2,
+    shape s
+WHERE
+    s.shape_id = %s AND
+    s1.stop_id = %s AND s2.stop_id = %s;
+"""
+
+getPokeStopsCountQ = """
+SELECT COUNT(*) FROM pokestops WHERE st_within(geom, ST_SetSRID(st_geomfromtext('
+"""
 
 def dummy():
     print "Started"
@@ -56,6 +74,11 @@ def parseTime(inp,): #return the unix time
     r = int(s[0]) * 60 * 60 + int(s[1]) * 60 + int(s[2])
     return r
 
+def isAllowed(x, allowedIDs):
+    for id in allowedIDs:
+        if id[0] == x[2]:
+            return True
+    return False
 
 def relevantTrips(sLat, sLon, eLat, eLon):
     lowerTime = parseTime(time.strftime('%H:%M:%S'))
@@ -64,7 +87,31 @@ def relevantTrips(sLat, sLon, eLat, eLon):
     curs.execute(mainQ, (str(lowerTime),str(upperTime),str(sLon),str(sLat),str(eLon),str(eLat),))
     result = curs.fetchall()
     curs.close()
+    allowedIDs = allowedServiceIDs()
+    result = [x for x in result if isAllowed(x, allowedIDs)]
+    output = []
+    for x in range(len(result)):
+        shapeId, startStop, endStop = result[x][4], result[x][-2], result[x][-1]
+        result[x] ={
+            'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop)),
+            'other': result[x]
+        }
+
     return result
+
+def getPokeCountAlongPoly(polyStr):
+    curs = conn.cursor()
+    curs.execute(getPokeStopsCountQ + polyStr.replace("'", "''") + "'),4283));")
+    result = curs.fetchone()
+    curs.close()
+    return result
+
+def getPoly(shapeID, startStop, endStop):
+    curs = conn.cursor()
+    curs.execute(getPolyQ, (shapeID, startStop, endStop,))
+    result = curs.fetchone()
+    curs.close()
+    return result[0]
 
 def stopsAroundLocation(lat, lon):
     curs = conn.cursor()
@@ -73,17 +120,56 @@ def stopsAroundLocation(lat, lon):
     curs.close()
     return result
 
+def allowedServiceIDs():
+    wd = datetime.now().isoweekday()
+    q = "KEK"
+    if wd == 1:
+        q = "monday='1'"
+    elif wd == 2:
+        q = "tuesday='1'"
+    elif wd == 3:
+        q = "wednesday='1'"
+    elif wd == 4:
+        q = "thursday='1'"
+    elif wd == 5:
+        q = "friday='1'"
+    elif wd == 6:
+        q = "saturday='1'"
+    elif wd == 7:
+        q = "sunday='1'"
+
+    curs = conn.cursor()
+    q = "SELECT service_id  FROM calendar WHERE " + q + " AND start_date < now() AND end_date > now()"
+    curs.execute(q)
+    result = curs.fetchall()
+    curs.close()
+    return result
+
+
+
+
 def debugStopsAround(response):
     response.set_header('Content-Type', 'text/plain')
     response.write(json.dumps(stopsAroundLocation(response.get_field("lat"),response.get_field("lon")), indent=4, sort_keys=True))
 
+def relevantTrips(response):
+    response.set_header('Content-Type', 'application/json')
+    response.write(json.dumps(relevantTrips(response.get_field("slat"),response.get_field("slon"),response.get_field("elat"),response.get_field("elon")), indent=4, sort_keys=True, default=json_serial))
+
+
 def debugrelevantTrips(response):
     response.set_header('Content-Type', 'text/plain')
     response.write(json.dumps(relevantTrips(response.get_field("slat"),response.get_field("slon"),response.get_field("elat"),response.get_field("elon")), indent=4, sort_keys=True, default=json_serial))
+
+def debugallowedServiceIDs(response):
+    response.set_header('Content-Type', 'text/plain')
+    response.write(json.dumps(allowedServiceIDs(), indent=4, sort_keys=True, default=json_serial))
 
 
 server = Server('0.0.0.0', 80)
 server.register("/", indexPage)
 server.register("/debug/stopsAround", debugStopsAround)
 server.register("/debug/relevantTrips", debugrelevantTrips)
+server.register("/debug/serviceIds", debugallowedServiceIDs)
+server.register("/relevantTrips", relevantTrips)
 server.run(dummy)
