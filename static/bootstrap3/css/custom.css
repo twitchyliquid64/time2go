@@ -53,22 +53,43 @@ body {
 	background-color: #D7D7D7;
 }
 
-.img-circle {
+.innerCircle {
 	border-style: solid;
 	border-color: #56E1F6;
 	border-width: 1px;
 	border-radius: 50%;
-	background-color: white;
-	text-align: center;
-	font-weight: 600;
 	width: 60px;
 	height: 60px;
-	line-height: 40px;
-	display: inline-block;
-	padding: 10px;
-	border-spacing: 10px 10px;
-
 }
 
-.innterCircle
+.img-circle {
+	border-style: solid;
+	border-color: white;
+	color: white;
+	border-width: 2px;
+	border-radius: 50%;
+	background-color: #56E1F6;
+	text-align: center;
+	font-weight: 600;
+	width: 55px;
+	height: 55px;
+	line-height: 30px;
+	display: inline-block;
+	padding: 10px 10px 15px 12px;
+	margin: 7px 0px 7px 7px;
+	font-size: 200%;
+}
 
+hr {
+	margin: 0px;
+	padding: 0px;
+}
+
+.routePadding {
+	padding-top: 4px;
+}
+
+.nopadding {
+   padding: 0 !important;
+   margin: 0 !important;
+}
