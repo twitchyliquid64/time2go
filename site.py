@@ -152,7 +152,7 @@ def debugStopsAround(response):
     response.set_header('Content-Type', 'text/plain')
     response.write(json.dumps(stopsAroundLocation(response.get_field("lat"),response.get_field("lon")), indent=4, sort_keys=True))
 
-def relevantTrips(response):
+def webRelevantTrips(response):
     response.set_header('Content-Type', 'application/json')
     response.write(json.dumps(relevantTrips(response.get_field("slat"),response.get_field("slon"),response.get_field("elat"),response.get_field("elon")), indent=4, sort_keys=True, default=json_serial))
 
@@ -171,5 +171,5 @@ server.register("/", indexPage)
 server.register("/debug/stopsAround", debugStopsAround)
 server.register("/debug/relevantTrips", debugrelevantTrips)
 server.register("/debug/serviceIds", debugallowedServiceIDs)
-server.register("/relevantTrips", relevantTrips)
+server.register("/relevantTrips", webRelevantTrips)
 server.run(dummy)
