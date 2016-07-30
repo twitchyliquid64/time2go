@@ -39,3 +39,21 @@ CREATE TABLE shapeEntries (
 
 	imported TIMESTAMP
 )
+
+CREATE TABLE stopTimes (
+	stopTimePK SERIAL PRIMARY KEY,
+	trip_id VARCHAR(12),
+	arrival_time VARCHAR(16),
+	departure_time VARCHAR(16),
+	stop_id VARCHAR(16),
+	stop_sequence VARCHAR(16),
+	pickup_type VARCHAR(8),
+	drop_off_type VARCHAR(8),
+	shape_dist_traveled VARCHAR(12),
+	timepoint VARCHAR(12),
+	stop_note VARCHAR(100)
+
+	imported TIMESTAMP
+)
+
+CREATE INDEX stop_gidx ON stops USING GIST (pos);
