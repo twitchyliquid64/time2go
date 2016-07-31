@@ -9,6 +9,7 @@
     <!-- Optional Bootstrap theme -->
     <link rel="stylesheet" href="/static/bootstrap3/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/static/bootstrap3/css/custom.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="/static/bootstrap3/js/bootstrap.min.js"></script>
@@ -156,31 +157,36 @@
     				"/relevantTrips",
     				this.data.search,
     				function(resp){
-    				$(".result-box").html("");
-    				$.each(resp, function(i,d){
-    					// console.log(d);
-    					var $dom = $("<div />").html($("#js-map-result-item-template").html());
+	    				$(".result-box").html("");
+	    				if(!resp){
+	    					ttg.noResultsFound();
+	    				}
+	    				$.each(resp, function(i,d){
+	    					// console.log(d);
+	    					var $dom = $("<div />").html($("#js-map-result-item-template").html());
 
-    					$dom.find(".result-route-towards").text("towards "+d.headsign);
-    					$dom.find(".result-route-code").text(d.routeID.replace(/^.*?_/,""));
+	    					$dom.find(".result-route-towards").text("towards "+d.headsign);
+	    					$dom.find(".result-route-code").text(d.routeID.replace(/^.*?_/,""));
 
-    					$dom.find(".result-pokestop-count").text(d.count);
+	    					$dom.find(".result-pokestop-count").text(d.count);
 
-    					$dom.find(".result-time-duration").text(Math.round((d.endTime - d.startTime)/60));
+	    					$dom.find(".result-time-duration").text(Math.round((d.endTime - d.startTime)/60));
 
-    					$dom.find(".result-time-start").text(ttg.utils.secondsToTime(d.startTime));
-    					$dom.find(".result-time-end").text(ttg.utils.secondsToTime(d.endTime));
+	    					$dom.find(".result-time-start").text(ttg.utils.secondsToTime(d.startTime));
+	    					$dom.find(".result-time-end").text(ttg.utils.secondsToTime(d.endTime));
 
-    					$dom.find(".result-time-remain").text(Math.round((d.startTime - ttg.utils.nowFromMidnight())/60)+"m");
+	    					$dom.find(".result-time-remain").text(Math.round((d.startTime - ttg.utils.nowFromMidnight())/60)+"m");
 
 
-    					$dom.find(".box").attr("shape", d.shape);
-    					$dom.find(".box").attr("direction", d.direction);
-    					$dom.find(".box").attr("stop1", d.startStop);
-    					$dom.find(".box").attr("stop2", d.endStop);
+	    					$dom.find(".box").attr("shape", d.shape);
+	    					$dom.find(".box").attr("direction", d.direction);
+	    					$dom.find(".box").attr("stop1", d.startStop);
+	    					$dom.find(".box").attr("stop2", d.endStop);
 
-    					$(".result-box").append($dom);
-    				});
+	    					$(".result-box").append($dom);
+	    				});
+    			}).error(function(){
+    				ttg.noResultsFound();
     			});
     		}
     	},
@@ -225,6 +231,9 @@
 					});
     			}
     		);
+    	},
+    	noResultsFound: function(){
+    		$(".result-box").html($("#js-results-no-results").html());
     	}
     };
 
@@ -296,6 +305,14 @@
 			<h4>Please wait...</h4>
 			<p>Searching routes and Pokéstops</p>
 			<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+		</div>
+	</script>
+
+	<script type="text/x-template" id="js-results-no-results">
+		<div class="text-center text-gray">
+			<h4>Sorry, no results found</h4>
+			<p>Please try another route</p>
+			<i class="fa fa-frown-o fa-3x fa-fw"></i>
 		</div>
 	</script>
 </head>
