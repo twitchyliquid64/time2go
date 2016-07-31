@@ -58,13 +58,30 @@ WHERE
     s1.stop_id = %s AND s2.stop_id = %s;
 """
 
+getPolyQGEO = """
+SELECT St_AsGeoJSON(ST_SetSRID(ST_LineSubstring(s.geom,
+        ST_LineLocatePoint(s.geom, s1.pos),
+        ST_LineLocatePoint(s.geom, s2.pos)
+    ),4283))
+FROM
+    stops s1,
+    stops s2,
+    shape s
+WHERE
+    s.shape_id = %s AND
+    s1.stop_id = %s AND s2.stop_id = %s;
+"""
+
 getPokeStopsCountQ = """
 SELECT COUNT(*) FROM pokestops WHERE st_within(geom, ST_SetSRID(st_geomfromtext('
 """
 
+getPokeStops = """
+SELECT St_AsGeoJSON(geom) FROM pokestops WHERE st_within(geom, ST_SetSRID(st_geomfromtext('
+"""
+
 def dummy():
     print "Started"
-
 
 def indexPage(response):
     response.write(TemplateAPI.render('main.html', response, {}))
@@ -98,6 +115,8 @@ def relevantTrips(sLat, sLon, eLat, eLon):
             'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop, result[x][6]))[0],
             'startStop': startStop,
             'endStop': endStop,
+            'direction':  result[x][6],
+            'shape': shapeId,
             'headsign': result[x][5],
             'runName': result[x][-6],
             'startName': deets[startStop],
@@ -115,6 +134,16 @@ def getPokeCountAlongPoly(polyStr):
     result = curs.fetchone()
     curs.close()
     return result
+
+def getPokeStopsMethod(polyStr):
+    curs = conn.cursor()
+    curs.execute(getPokeStops + polyStr.replace("'", "''") + "'),4283));")
+    result = curs.fetchall()
+    curs.close()
+    out = []
+    for x in result:
+        out.append(json.loads(x[0]))
+    return out
 
 
 def getStopDetails(stopID1, stopID2):
@@ -138,14 +167,17 @@ def getStopTimeDetails(stopID1, stopID2):
     return a
 
 
-def getPoly(shapeID, startStop, endStop, directionID):
+def getPoly(shapeID, startStop, endStop, directionID, geoJSON=False):
+    q2 = getPolyQ
+    if geoJSON:
+        q2 = getPolyQGEO
     curs = conn.cursor()
-    print directionID, startStop, endStop
+    print directionID, startStop, endStop, shapeID
     if directionID == "1":
         tmp = startStop
         startStop = endStop
         endStop = tmp
-    curs.execute(getPolyQ, (shapeID, startStop, endStop,))
+    curs.execute(q2, (shapeID, startStop, endStop,))
     result = curs.fetchone()
     curs.close()
     return result[0]
@@ -193,8 +225,23 @@ def webRelevantTrips(response):
     response.set_header('Content-Type', 'application/json')
     response.set_header('Allow', 'GET, POST, OPTIONS')
     response.set_header('Access-Control-Allow-Origin', '*')
-    response.write(json.dumps(relevantTrips(response.get_field("slat"),response.get_field("slon"),response.get_field("elat"),response.get_field("elon")), indent=4, sort_keys=True, default=json_serial))
+    try:
+        response.write(json.dumps(relevantTrips(response.get_field("slat"),response.get_field("slon"),response.get_field("elat"),response.get_field("elon")), indent=4, sort_keys=True, default=json_serial))
+    except pg8000.ProgrammingError:
+        print "LOL FAIL"
+        conn.rollback()
 
+def getPolyHandler(response):
+    response.set_header('Content-Type', 'application/json')
+    response.set_header('Allow', 'GET, POST, OPTIONS')
+    response.set_header('Access-Control-Allow-Origin', '*')
+    try:
+        p = json.loads(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"), True))
+        s = (getPokeStopsMethod(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"))))
+        response.write(json.dumps({'path': p, 'stops': s}))
+    except pg8000.ProgrammingError:
+        print "LOL FAIL"
+        conn.rollback()
 
 def debugrelevantTrips(response):
     response.set_header('Content-Type', 'text/plain')
@@ -211,4 +258,5 @@ server.register("/debug/stopsAround", debugStopsAround)
 server.register("/debug/relevantTrips", debugrelevantTrips)
 server.register("/debug/serviceIds", debugallowedServiceIDs)
 server.register("/relevantTrips", webRelevantTrips)
+server.register("/poly", getPolyHandler)
 server.run(dummy)
