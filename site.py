@@ -229,6 +229,9 @@ def webRelevantTrips(response):
         conn.rollback()
 
 def getPolyHandler(response):
+    response.set_header('Content-Type', 'application/json')
+    response.set_header('Allow', 'GET, POST, OPTIONS')
+    response.set_header('Access-Control-Allow-Origin', '*')
     try:
         p = json.loads(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"), True))
         s = json.loads(getPokeStopsMethod(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"))))
