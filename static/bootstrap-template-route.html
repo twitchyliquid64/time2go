@@ -152,7 +152,7 @@
     			// console.log(test);
     			$.get(
     				// "http://time2go.ciphersink.net/relevantTrips?slat=-33.8825&slon=151.206667&elat=-33.8997748&elon=151.2048372",
-    				"http://time2go.ciphersink.net/relevantTrips",
+    				"/relevantTrips",
     				this.data.search,
     				function(resp){
     				$(".result-box").html("");
@@ -191,7 +191,7 @@
     	loadMapData: function(el){
     		console.log("loadMapData invoked")
     		$.get(
-    			"http://time2go.ciphersink.net/poly",
+    			"/poly",
     			{
     				shape: $(el).attr("shape"),
     				dir: $(el).attr("direction"),
