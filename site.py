@@ -94,6 +94,7 @@ def relevantTrips(sLat, sLon, eLat, eLon):
         shapeId, startStop, endStop = result[x][4], result[x][-4], result[x][-3]
         deets = getStopDetails(startStop, endStop)
         stopTimeDeets = getStopTimeDetails(result[x][-2], result[x][-1])
+        print getPoly(shape, startStop, endStop)[0]
         result[x] ={
             'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop))[0],
             'startStop': startStop,
