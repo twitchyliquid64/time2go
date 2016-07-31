@@ -150,6 +150,7 @@
     			// there is data!
     			// alert("Making request!");
     			// console.log(test);
+    			$(".result-box").html($("#js-results-loading").html());
     			$.get(
     				// "http://time2go.ciphersink.net/relevantTrips?slat=-33.8825&slon=151.206667&elat=-33.8997748&elon=151.2048372",
     				"http://time2go.ciphersink.net/relevantTrips",
@@ -189,7 +190,7 @@
 			$(".back-button").hide();
     	},
     	loadMapData: function(el){
-    		console.log("loadMapData invoked")
+    		// console.log("loadMapData invoked")
     		$.get(
     			"http://time2go.ciphersink.net/poly",
     			{
@@ -290,6 +291,13 @@
 			</div>
 		</div>
 	</script>
+	<script type="text/x-template" id="js-results-loading">
+		<div class="text-center text-gray">
+			<h4>Please wait...</h4>
+			<p>Searching routes and Pokéstops</p>
+			<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+		</div>
+	</script>
 </head>
 <body>
 	<nav class="navbar navbar-ttg">
@@ -297,8 +305,8 @@
 			<a href="javascript:;" class="btn btn-sm btn-default" onclick="ttg.back()">Back</a>
 		</div>
 		<div class="container-fluid">
-			<h1>Time2Go</h1>
-		</div><!-- /.container-fluid -->
+			<h1>Time2<span style="color: #C13939">Go</span></h1>
+		</div>
 	</nav>
 	<div class="formBack">
 		<div class="container">
