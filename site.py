@@ -186,6 +186,8 @@ def debugStopsAround(response):
 
 def webRelevantTrips(response):
     response.set_header('Content-Type', 'application/json')
+    response.set_header('Allow', 'GET, POST, OPTIONS')
+    response.set_header('Access-Control-Allow-Origin', '*')
     response.write(json.dumps(relevantTrips(response.get_field("slat"),response.get_field("slon"),response.get_field("elat"),response.get_field("elon")), indent=4, sort_keys=True, default=json_serial))
 
 
