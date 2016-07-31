@@ -116,6 +116,7 @@ def relevantTrips(sLat, sLon, eLat, eLon):
             'startStop': startStop,
             'endStop': endStop,
             'direction':  result[x][6],
+            'shape': shapeId,
             'headsign': result[x][5],
             'runName': result[x][-6],
             'startName': deets[startStop],
