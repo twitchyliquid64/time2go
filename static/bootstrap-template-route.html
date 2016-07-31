@@ -141,12 +141,12 @@
     		if(this.data.search.slat && this.data.search.slon && this.data.search.elat && this.data.search.elon){
     			// there is data!
     			// alert("Making request!");
-    			console.log(test);
-    			$.get(
+    			// console.log(test);
+    			// $.get(
     				// "http://time2go.ciphersink.net/relevantTrips?slat=-33.8825&slon=151.206667&elat=-33.8997748&elon=151.2048372",
-    				"http://time2go.ciphersink.net/relevantTrips",
-    				this.data.search, 
-    				function(resp){
+    				// "http://time2go.ciphersink.net/relevantTrips",
+    				// this.data.search, 
+    				(function(resp){
     				$(".result-box").html("");
     				$.each(resp, function(i,d){
     					console.log(d);
@@ -163,7 +163,7 @@
 
     					$(".result-box").append($dom);
     				});
-    			});
+    			})(test);
     		}
     	}
     };
@@ -251,5 +251,6 @@
 			</div>
 		</div>
 	</div>
+	<div class="pokeball-background"></div>
 </body>
 </html>

@@ -3,11 +3,6 @@ html, body{
 }
 body {
 	margin: 0;
-	background: url('img/pokeball.png');
-	background-size: 440px 400px;
-	background-repeat:no-repeat;
-	background-position: top;
-	
 	margin-top: 173px;
 }
 
@@ -106,3 +101,18 @@ body {
 
 .text-gray{ color: #666; }
 .text-white{ color: #FFF; }
+
+.pokeball-background{
+	position: fixed;
+	background: url('img/pokeball.png');
+	background-size: 440px 400px;
+	background-repeat:no-repeat;
+	background-position: top;
+	z-index: -99;
+
+	height: 440px;
+	width: 400px;
+
+	bottom: 0;
+	right: 0;
+}
