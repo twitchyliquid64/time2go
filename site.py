@@ -140,7 +140,10 @@ def getPokeStopsMethod(polyStr):
     curs.execute(getPokeStops + polyStr.replace("'", "''") + "'),4283));")
     result = curs.fetchall()
     curs.close()
-    return result
+    out = []
+    for x in result:
+        out.append(json.loads(x[0]))
+    return out
 
 
 def getStopDetails(stopID1, stopID2):
@@ -234,7 +237,7 @@ def getPolyHandler(response):
     response.set_header('Access-Control-Allow-Origin', '*')
     try:
         p = json.loads(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"), True))
-        s = json.loads(getPokeStopsMethod(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"))))
+        s = (getPokeStopsMethod(getPoly(response.get_field("shape"),response.get_field("stop1"),response.get_field("stop2"),response.get_field("dir"))))
         response.write(json.dumps({'path': p, 'stops': s}))
     except pg8000.ProgrammingError:
         print "LOL FAIL"
