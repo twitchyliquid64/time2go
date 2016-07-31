@@ -84,7 +84,7 @@ def dummy():
     print "Started"
 
 def indexPage(response):
-    response.write(TemplateAPI.render('main.html', response, {}))
+    response.write(TemplateAPI.render('../static/bootstrap-template-route.html', response, {}))
 
 def parseTime(inp,): #return the unix time
     s = inp.split(":")

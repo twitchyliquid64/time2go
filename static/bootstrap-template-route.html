@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <head>
 	<!--<tite>TEST BOOTSTRAP TEMPLATE</tite>-->
-<link rel="stylesheet" type="text/css" href="bootstrap3/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/static/bootstrap3/css/bootstrap.min.css">
     <!-- Optional Bootstrap theme -->
-    <link rel="stylesheet" href="bootstrap3/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="bootstrap3/css/custom.css">
+    <link rel="stylesheet" href="/static/bootstrap3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static/bootstrap3/css/custom.css">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="bootstrap3/js/bootstrap.min.js"></script>
+    <script src="/static/bootstrap3/js/bootstrap.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBrROuCQ6ERiIgz_ToqD0XtUJl0qU1dVas"></script>
 
     <script type="text/javascript">
@@ -153,7 +153,7 @@
     			$.get(
     				// "http://time2go.ciphersink.net/relevantTrips?slat=-33.8825&slon=151.206667&elat=-33.8997748&elon=151.2048372",
     				"http://time2go.ciphersink.net/relevantTrips",
-    				this.data.search, 
+    				this.data.search,
     				function(resp){
     				$(".result-box").html("");
     				$.each(resp, function(i,d){
@@ -281,7 +281,7 @@
 						</div>
 					</div>
 					<span class="label label-info result-route-code">M50</span> <span class="text-xx-small result-route-towards">towards Coogee</span><br />
-					<span class="text-x-small"><span class="result-time-start">11:55am</span> - <span class="result-time-end">12:27pm</span></span> <span class="text-x-small text-gray"><span class="result-time-duration">32</span> mins</span> 
+					<span class="text-x-small"><span class="result-time-start">11:55am</span> - <span class="result-time-end">12:27pm</span></span> <span class="text-x-small text-gray"><span class="result-time-duration">32</span> mins</span>
 				</div>
 				<div class="col-xs-3 text-center">
 					<div class="pokestop-icon text-white pull-left"></div> <span class="result-pokestop-count pokestop-figure text-med">17</span>
