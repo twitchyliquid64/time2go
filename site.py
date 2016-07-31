@@ -33,11 +33,11 @@ SELECT t.*, s1.stop_id, s2.stop_id, st1.stoptimepk, st2.stoptimepk
         ST_DWithin(
             s1.pos,
             ST_MakePoint(%s,%s),
-            0.005
+            0.015
         ) AND ST_DWithin(
             s2.pos,
             ST_MakePoint(%s,%s),
-            0.005
+            0.015
         ) AND
         t.trip_id = st1.trip_id
     GROUP BY t.tripPK, s1.stop_id, s2.stop_id, st1.stoptimepk, st2.stoptimepk
@@ -91,6 +91,23 @@ def parseTime(inp,): #return the unix time
     r = int(s[0]) * 60 * 60 + int(s[1]) * 60 + int(s[2])
     return r
 
+def latDist(sLat,eLat,sLon,eLon):
+    from math import sin, cos, sqrt, atan2, radians
+    # approximate radius of earth in km
+    R = 6373.0
+    lat1 = radians(float(sLat))
+    lon1 = radians(float(sLon))
+    lat2 = radians(float(eLat))
+    lon2 = radians(float(eLon))
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance = R * c * 1000
+    return distance
+
 def isAllowed(x, allowedIDs):
     for id in allowedIDs:
         if id[0] == x[2]:
@@ -112,16 +129,20 @@ def relevantTrips(sLat, sLon, eLat, eLon):
             shapeId, startStop, endStop = result[x][4], result[x][-4], result[x][-3]
             deets = getStopDetails(startStop, endStop)
             stopTimeDeets = getStopTimeDetails(result[x][-2], result[x][-1])
+            fullDist = (2*latDist(float(deets[startStop][2]), float(sLat), float(deets[startStop][3]),  float(sLon))) * latDist(float(deets[endStop][2]), float(eLat), float(deets[endStop][3]),  float(eLon))
             result[x] ={
                 'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop, result[x][6]))[0],
+                'startDist': latDist(float(deets[startStop][2]), float(sLat), float(deets[startStop][3]),  float(sLon)),
+                'endDist': latDist(float(deets[endStop][2]), float(eLat), float(deets[endStop][3]),  float(eLon)),
+                'fullDist': fullDist,
                 'startStop': startStop,
                 'endStop': endStop,
                 'direction':  result[x][6],
                 'shape': shapeId,
                 'headsign': result[x][5],
                 'runName': result[x][-6],
-                'startName': deets[startStop],
-                'endName': deets[endStop],
+                'startName': deets[startStop][1],
+                'endName': deets[endStop][1],
                 'startTime': stopTimeDeets[result[x][-2]],
                 'endTime': stopTimeDeets[result[x][-1]],
                 'routeID': result[x][1]
@@ -130,6 +151,7 @@ def relevantTrips(sLat, sLon, eLat, eLon):
         except pg8000.ProgrammingError:
             print "Err, omitting row"
 
+    output.sort(key=lambda x: x['fullDist'])
     return output
 
 def getPokeCountAlongPoly(polyStr):
@@ -152,12 +174,12 @@ def getPokeStopsMethod(polyStr):
 
 def getStopDetails(stopID1, stopID2):
     curs = conn.cursor()
-    curs.execute("SELECT stop_id, stop_name FROM stops WHERE stop_id = %s OR stop_id = %s", (stopID1,stopID2,))
+    curs.execute("SELECT stop_id, stop_name, lat, lon FROM stops WHERE stop_id = %s OR stop_id = %s", (stopID1,stopID2,))
     result = curs.fetchall()
     curs.close()
     a = {}
     for x in result:
-        a[x[0]] = x[1]
+        a[x[0]] = x
     return a
 
 def getStopTimeDetails(stopID1, stopID2):
@@ -171,7 +193,7 @@ def getStopTimeDetails(stopID1, stopID2):
     return a
 
 
-def getPoly(shapeID, startStop, endStop, directionID, geoJSON=False):
+def getPoly(shapeID, startStop, endStop, directionID, geoJSON=False, hasAttempted=False):
     q2 = getPolyQ
     if geoJSON:
         q2 = getPolyQGEO
@@ -181,10 +203,15 @@ def getPoly(shapeID, startStop, endStop, directionID, geoJSON=False):
         tmp = startStop
         startStop = endStop
         endStop = tmp
-    curs.execute(q2, (shapeID, startStop, endStop,))
-    result = curs.fetchone()
-    curs.close()
-    return result[0]
+    try:
+        curs.execute(q2, (shapeID, startStop, endStop,))
+        result = curs.fetchone()
+        curs.close()
+        return result[0]
+    except pg8000.ProgrammingError:
+        if hasAttempted:
+            raise
+        return getPoly(shapeID, endStop, startStop, directionID, geoJSON, True)
 
 def stopsAroundLocation(lat, lon):
     curs = conn.cursor()
