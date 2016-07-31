@@ -99,6 +99,8 @@ body {
 .text-x-small{ font-size: 75%; }
 .text-xx-small{ font-size: 70%; }
 
+.text-center{ text-align: center; }
+
 .text-gray{ color: #666; }
 .text-white{ color: #FFF; }
 
