@@ -41,7 +41,7 @@ SELECT t.*, s1.stop_id, s2.stop_id, st1.stoptimepk, st2.stoptimepk
         ) AND
         t.trip_id = st1.trip_id
     GROUP BY t.tripPK, s1.stop_id, s2.stop_id, st1.stoptimepk, st2.stoptimepk
-    LIMIT 8;
+    LIMIT 15;
 """
 
 getPolyQ = """
@@ -93,17 +93,18 @@ def relevantTrips(sLat, sLon, eLat, eLon):
     for x in range(len(result)):
         shapeId, startStop, endStop = result[x][4], result[x][-4], result[x][-3]
         deets = getStopDetails(startStop, endStop)
+        stopTimeDeets = getStopTimeDetails(result[x][-2], result[x][-1])
         result[x] ={
             'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop))[0],
             'startStop': startStop,
             'endStop': endStop,
             'headsign': result[x][5],
             'runName': result[x][-6],
-            'other': result[x],
             'startName': deets[startStop],
             'endName': deets[endStop],
-            'startTime': 69,
-            'endTime': 69
+            'startTime': stopTimeDeets[result[x][-2]],
+            'endTime': stopTimeDeets[result[x][-1]],
+            'routeID': result[x][1]
         }
 
     return result
@@ -115,6 +116,7 @@ def getPokeCountAlongPoly(polyStr):
     curs.close()
     return result
 
+
 def getStopDetails(stopID1, stopID2):
     curs = conn.cursor()
     curs.execute("SELECT stop_id, stop_name FROM stops WHERE stop_id = %s OR stop_id = %s", (stopID1,stopID2,))
@@ -124,6 +126,17 @@ def getStopDetails(stopID1, stopID2):
     for x in result:
         a[x[0]] = x[1]
     return a
+
+def getStopTimeDetails(stopID1, stopID2):
+    curs = conn.cursor()
+    curs.execute("SELECT stoptimepk, arrival_time, departure_time FROM stoptimes WHERE stoptimepk = %s OR stoptimepk = %s", (str(stopID1),str(stopID2),))
+    result = curs.fetchall()
+    curs.close()
+    a = {}
+    for x in result:
+        a[x[0]] = x[1]
+    return a
+
 
 def getPoly(shapeID, startStop, endStop):
     curs = conn.cursor()
