@@ -138,9 +138,9 @@ def getPokeCountAlongPoly(polyStr):
 def getPokeStopsMethod(polyStr):
     curs = conn.cursor()
     curs.execute(getPokeStops + polyStr.replace("'", "''") + "'),4283));")
-    result = curs.fetchone()
+    result = curs.fetchall()
     curs.close()
-    return result[0]
+    return result
 
 
 def getStopDetails(stopID1, stopID2):
