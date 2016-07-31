@@ -84,7 +84,7 @@ def dummy():
     print "Started"
 
 def indexPage(response):
-    response.write(TemplateAPI.render('main.html', response, {}))
+    response.write(TemplateAPI.render('../static/bootstrap-template-route.html', response, {}))
 
 def parseTime(inp,): #return the unix time
     s = inp.split(":")
@@ -108,25 +108,29 @@ def relevantTrips(sLat, sLon, eLat, eLon):
     result = [x for x in result if isAllowed(x, allowedIDs)]
     output = []
     for x in range(len(result)):
-        shapeId, startStop, endStop = result[x][4], result[x][-4], result[x][-3]
-        deets = getStopDetails(startStop, endStop)
-        stopTimeDeets = getStopTimeDetails(result[x][-2], result[x][-1])
-        result[x] ={
-            'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop, result[x][6]))[0],
-            'startStop': startStop,
-            'endStop': endStop,
-            'direction':  result[x][6],
-            'shape': shapeId,
-            'headsign': result[x][5],
-            'runName': result[x][-6],
-            'startName': deets[startStop],
-            'endName': deets[endStop],
-            'startTime': stopTimeDeets[result[x][-2]],
-            'endTime': stopTimeDeets[result[x][-1]],
-            'routeID': result[x][1]
-        }
+        try:
+            shapeId, startStop, endStop = result[x][4], result[x][-4], result[x][-3]
+            deets = getStopDetails(startStop, endStop)
+            stopTimeDeets = getStopTimeDetails(result[x][-2], result[x][-1])
+            result[x] ={
+                'count': getPokeCountAlongPoly(getPoly(shapeId, startStop, endStop, result[x][6]))[0],
+                'startStop': startStop,
+                'endStop': endStop,
+                'direction':  result[x][6],
+                'shape': shapeId,
+                'headsign': result[x][5],
+                'runName': result[x][-6],
+                'startName': deets[startStop],
+                'endName': deets[endStop],
+                'startTime': stopTimeDeets[result[x][-2]],
+                'endTime': stopTimeDeets[result[x][-1]],
+                'routeID': result[x][1]
+            }
+            output.append(result[x])
+        except pg8000.ProgrammingError:
+            print "Err, omitting row"
 
-    return result
+    return output
 
 def getPokeCountAlongPoly(polyStr):
     curs = conn.cursor()
