@@ -41,7 +41,7 @@ SELECT t.*, s1.stop_id, s2.stop_id, st1.stoptimepk, st2.stoptimepk
         ) AND
         t.trip_id = st1.trip_id
     GROUP BY t.tripPK, s1.stop_id, s2.stop_id, st1.stoptimepk, st2.stoptimepk
-    LIMIT 15;
+    LIMIT 22;
 """
 
 getPolyQ = """
