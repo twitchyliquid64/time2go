@@ -10,78 +10,246 @@
     <link rel="stylesheet" href="bootstrap3/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="bootstrap3/css/custom.css">
 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="bootstrap3/js/bootstrap.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
+
+    <script type="text/javascript">
+
+    var test = [{
+  "count": 35,
+  "endName": "Botany Rd near Allen St",
+  "endStop": "201714",
+  "endTime": 48000,
+  "headsign": "Eastgardens",
+  "routeID": "2441_310",
+  "runName": "Central Railway Square to Eastgardens via Botany Rd",
+  "startName": "Central Station, Railway Square, Stand K",
+  "startStop": "200062",
+  "startTime": 46980
+}, {
+  "count": 17,
+  "endName": "Elizabeth St near Bourke St",
+  "endStop": "201728",
+  "endTime": 44220,
+  "headsign": "Kingsford",
+  "routeID": "2441_343",
+  "runName": "Chatswood to Kingsford",
+  "startName": "Elizabeth St at Devonshire St",
+  "startStop": "201081",
+  "startTime": 43860
+}, {
+  "count": 15,
+  "endName": "Elizabeth St near Phillip St",
+  "endStop": "201626",
+  "endTime": 47700,
+  "headsign": "Botany",
+  "routeID": "2438_M20",
+  "runName": "Gore Hill to Botany",
+  "startName": "Elizabeth St at Reservoir St",
+  "startStop": "201059",
+  "startTime": 47280
+}, {
+  "count": 35,
+  "endName": "Botany Rd near McEvoy St",
+  "endStop": "201713",
+  "endTime": 46740,
+  "headsign": "Eastgardens",
+  "routeID": "2441_310",
+  "runName": "Central Railway Square to Eastgardens via Botany Rd",
+  "startName": "Central Station, Railway Square, Stand K",
+  "startStop": "200062",
+  "startTime": 45780
+}, {
+  "count": 17,
+  "endName": "Elizabeth St near Wellington St",
+  "endStop": "201726",
+  "endTime": 47700,
+  "headsign": "Kingsford",
+  "routeID": "2441_343",
+  "runName": "Chatswood to Kingsford",
+  "startName": "Elizabeth St at Reservoir St",
+  "startStop": "201059",
+  "startTime": 47340
+}];
+    var ttg={
+    	data: {
+    		map: null,
+    		autocomplete_from: null,
+    		autocomplete_to: null,
+    		geocoder: null,
+    		search: {
+    			slat: null,
+    			slon: null,
+    			elat: null,
+    			elon: null
+    		}
+    	},
+		init: function(){
+			// setup google maps
+			// ttg.data.map = new google.maps.Map(document.getElementById('map'), {
+			//      center: {lat: -33.8688, lng: 151.2195},
+			//      zoom: 13
+			//    });
+
+			ttg.data.autocomplete_from = new google.maps.places.Autocomplete($("#destFrom")[0]);
+			ttg.data.autocomplete_to = new google.maps.places.Autocomplete($("#destTo")[0]);
+
+			// attach event listeners to update to/from dest
+			ttg.data.autocomplete_from.addListener('place_changed', function() {
+				var place = ttg.data.autocomplete_from.getPlace();
+				if(!place.geometry){
+					alert("We couldn't find the coordinates of the location you were looking for.  Please try another address nearby");
+					return;
+				}
+
+				// place.geometry.location
+				ttg.data.search.slat = place.geometry.location.lat();
+				ttg.data.search.slon = place.geometry.location.lng();
+
+				ttg.fetchResults();
+			});
+
+			ttg.data.autocomplete_to.addListener('place_changed', function() {
+				var place = ttg.data.autocomplete_to.getPlace();
+				if(!place.geometry){
+					alert("We couldn't find the coordinates of the location you were looking for.  Please try another address nearby");
+					return;
+				}
+
+				// place.geometry.location
+				ttg.data.search.elat = place.geometry.location.lat();
+				ttg.data.search.elon = place.geometry.location.lng();
+
+				ttg.fetchResults();
+			});
+
+		},
+		utils: {
+			nowFromMidnight: function(){
+				var now = new Date(),
+				    then = new Date(
+				        now.getFullYear(),
+				        now.getMonth(),
+				        now.getDate(),
+				        0,0,0),
+				    diff = now.getTime() - then.getTime();
+				    return diff/1000;
+			}
+		},
+    	fetchResults: function(){
+    		if(this.data.search.slat && this.data.search.slon && this.data.search.elat && this.data.search.elon){
+    			// there is data!
+    			// alert("Making request!");
+    			console.log(test);
+    			$.get(
+    				// "http://time2go.ciphersink.net/relevantTrips?slat=-33.8825&slon=151.206667&elat=-33.8997748&elon=151.2048372",
+    				"http://time2go.ciphersink.net/relevantTrips",
+    				this.data.search, 
+    				function(resp){
+    				$(".result-box").html("");
+    				$.each(resp, function(i,d){
+    					console.log(d);
+    					var $dom = $("<div />").html($("#js-map-result-item-template").html());
+
+    					$dom.find(".result-route-towards").text("towards "+d.headsign);
+    					$dom.find(".result-route-code").text(d.routeID.replace(/^.*?_/,""));
+
+    					$dom.find(".result-pokestop-count").text(d.count);
+
+    					$dom.find(".result-time-duration").text(Math.round((d.endTime - d.startTime)/60));
+
+    					$dom.find(".result-time-remain").text(Math.round((d.startTime - ttg.utils.nowFromMidnight())/60)+"m");
+
+    					$(".result-box").append($dom);
+    				});
+    			});
+    		}
+    	}
+    };
+
+    $(function(){
+    	ttg.init();
+    	ttg.fetchResults();
+    });
+    </script>
+
+    <style>
+	.tfnsw-circle {
+	    height: 40px;
+	    width: 40px;
+	    display: inline-block;
+	    border-radius: 20px;
+	    margin-right: 4px;
+	}
+	.tfnsw-inner {
+	    height: 100%;
+	    border-radius: 20px;
+	    line-height: 32px;
+	    text-align: center;
+	    font-size: 20px;
+	    border: 4px solid white;
+	}
+	</style>
+
+	<script type="text/x-template" id="js-map-result-item-template">
+		<div class="box">
+			<div class="row">
+				<div class="col-xs-2 text-center">
+					<span class="text-gray text-x-small">Leaves</span><br />
+					<span class="result-time-remain">3m</span>
+				</div>
+				<div class="col-xs-7">
+					<div class="tfnsw-circle pull-left">
+						<div class="tfnsw-inner" style="color: rgb(255, 255, 255); background-color: rgb(3, 169, 244);">
+							B
+						</div>
+					</div>
+					<span class="label label-info result-route-code">M50</span> <small class="result-route-towards">towards Coogee</small><br />
+					<span class="text-x-small"><span class="result-time-start">11:55am</span> - <span class="result-time-end">12:27pm</span></span> <span class="text-x-small text-gray"><span class="result-time-duration">32</span> mins</span> 
+				</div>
+				<div class="col-xs-3 text-center">
+					<div class="pokestop-icon text-white pull-left"></div> <span class="result-pokestop-count pokestop-figure text-med">17</span>
+					<span class="text-gray text-small">Pokéstops</span>
+				</div>
+			</div>
+		</div>
+	</script>
 </head>
 <body>
-<div class = "titleBack">
-	<div>Time2Go</div>
-</div>
-<div class = "formBack">
-
-	<div class="container-fluid">
-		<div class = "row">
-			<!--<div class = "col-sm-4" style="background-color:lavender;">. col sm 4 </div>
-			<div class = "col-sm-8" style="background-color:blue;">. col sm  8</div>-->
+	<nav class="navbar navbar-ttg">
+		<div class="container-fluid">
+			<h1>Time2Go</h1>
+		</div><!-- /.container-fluid -->
+	</nav>
+	<div class="formBack">
+		<div class="container">
+			<form class="form-horizontal" role= "form">
+				<div class="form-group">
+					<label class="col-xs-2 control-label" for="destFrom">From:</label>
+					<div class="col-xs-10">
+						<input type="text" class="form-control" id="destFrom" placeholder="Enter Start Destination">
+					</div>
+				</div>
+				<div class="form-group" style="margin-bottom: 0">
+					<label class="control-label col-xs-2" for="destTo">To:</label>
+					<div class="col-xs-10">
+						<input type="text" class="form-control" id="destTo" placeholder="Enter Final Destination">
+					</div>
+				</div>
+			</form>
 		</div>
 	</div>
-	<form class = "form-horizontal" role= "form">
-		<div class = "form-group">
-			<label class = "col-xs-2 control-label" for="destFrom"> From:</label>
-			<div class = "col-xs-10">
-				<input type = "text" class = "form-control" id = "destFrom" placeholder="Enter Start Destination">
-			</div>
-		</div>
-		<div class = "form-group">
-			<label class = "control-label col-xs-2" for="destTo"> To:</label>
-			<div class = "col-xs-10">
-				<input type = "text" class = "form-control" id = "destTo" placeholder="Enter Final Destination">
-			</div>
-		</div>
-	</form>
-</div>
 
+	<div class="container bg-light-gray ">
+		<div class="row">
+			<div class="col-md-6 result-box">
+				
+			</div>
+			<div class="col-md-6">
 
-<div class="box">
-	<div class="row">
-		<div class="col-xs-3 text-">
-			<div class="img-circle">B</div>
-		</div>
-		<div class="col-xs-9">
-			<div class = "routePadding"><p><span class="label label-info">M750</span> Towards Coogee</p></div>
-			<div class="row">
-				<div class="col-xs-6"><p><img id = "pokeStopImg" src="time2goimg/pokestopicon.png" class="img-responsive" alt = "pokestop icon" align="middle"/>17 stops</p></div>
-				<div class="col-xs-6"><i class="glyphicon glyphicon-time"></i> 50 mins</div>
 			</div>
 		</div>
 	</div>
-	<hr \>
-	<div class="row">
-		<div class="col-xs-3 text-">
-			<div class="img-circle">B</div>
-		</div>
-		<div class="col-xs-9">
-			<div class = "routePadding"><p><span class="label label-info">M750</span> Towards Coogee</p></div>
-			<div class="row">
-				<div class="col-xs-6"><p><img id = "pokeStopImg" src="time2goimg/pokestopicon.png" class="img-responsive" alt = "pokestop icon" align="middle"/>17 stops</p></div>
-				<div class="col-xs-6"><i class="glyphicon glyphicon-time"></i> 50 mins</div>
-			</div>
-		</div>
-	</div>
-	<hr \>
-	<div class="row">
-		<div class="col-xs-3 text-">
-			<div class="img-circle">B</div>
-		</div>
-		<div class="col-xs-9">
-			<div class = "routePadding"><p><span class="label label-info">M750</span> Towards Coogee</p></div>
-			<div class="row">
-				<div class="col-xs-6"><p><img id = "pokeStopImg" src="time2goimg/pokestopicon.png" class="img-responsive" alt = "pokestop icon" align="middle"/>17 stops</p></div>
-				<div class="col-xs-6"><i class="glyphicon glyphicon-time"></i> 50 mins</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-	<script src="bootstrap3/js/jquery-3.1.0.min.js"></script>
-    <script src="bootstrap3/js/bootstrap.min.js"></script>
 </body>
 </html>

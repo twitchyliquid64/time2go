@@ -1,33 +1,52 @@
-body {
-     margin: 0;
-     background: url('img/pokeball.png');
-     background-size: 440px 400px;
-     background-repeat:no-repeat;
-     background-position: top;
-     font-family: "sans-serif"
-     padding: 30;
-    display: compact;
+html, body{
+	min-height: 100%;
 }
-
-.glyphicon {
-    font-size: 20px;
+body {
+	margin: 0;
+	background: url('img/pokeball.png');
+	background-size: 440px 400px;
+	background-repeat:no-repeat;
+	background-position: top;
+	
+	margin-top: 173px;
 }
 
 .formBack {
 	background-color: #C13939;
-	padding: 7px;
+	padding: 20px 10px;
 	color: white;
+
+	position: fixed;
+	top: 50px;
+	left: 0px;
+
+	width: 100%;
+
+	z-index: 98;
 }
 
-.titleBack {
-	background-color: #FFFFFF;
+.navbar.navbar-ttg{
+	background: #FFF;
+	text-align: center;
+
+	margin-bottom: 0;
+
+	position: fixed;
+	width: 100%;
+
+	top: 0;
+	left: 0;
+
+	z-index: 99;
+}
+
+.navbar h1{
 	font-size: 25px;
 	text-align: center;
-	padding-top: 10px;
-	padding-bottom: 4px;
 	font-weight: 300;
+	margin: 0;
+	line-height: 50px;
 }
-
 .footer {
 	background-color: #C13939
 }
@@ -49,47 +68,41 @@ body {
 	display: inline-block;
 }
 
-.box {
-	background-color: #D7D7D7;
+.bg-light-gray{
+	background-color: #EEE;
 }
 
-.innerCircle {
-	border-style: solid;
-	border-color: #56E1F6;
-	border-width: 1px;
-	border-radius: 50%;
-	width: 60px;
-	height: 60px;
+.box{
+	padding: 10px;
+
+	border-bottom: 1px solid #777;
 }
 
-.img-circle {
-	border-style: solid;
-	border-color: white;
-	color: white;
-	border-width: 2px;
-	border-radius: 50%;
-	background-color: #56E1F6;
-	text-align: center;
-	font-weight: 600;
-	width: 55px;
-	height: 55px;
-	line-height: 30px;
+
+
+.pokestop-icon{
 	display: inline-block;
-	padding: 10px 10px 15px 12px;
-	margin: 7px 0px 7px 7px;
-	font-size: 200%;
+	background-image: url(../../img/pokestopicon.png);
+	background-size: 30px 30px;
+	width: 30px;
+	height: 30px;
+
+	line-height: 30px;
+	text-align: center;
+	text-shadow: 2px 2px 12px rgba(0, 0, 0, 1);
+
+	font-weight: 800;
 }
 
-hr {
-	margin: 0px;
-	padding: 0px;
+.pokestop-figure{
+	line-height: 30px;
 }
 
-.routePadding {
-	padding-top: 4px;
-}
 
-.nopadding {
-   padding: 0 !important;
-   margin: 0 !important;
-}
+.text-med{ font-size: 110%; }
+.text-small{ font-size: 85%; }
+.text-x-small{ font-size: 75%; }
+.text-xx-small{ font-size: 70%; }
+
+.text-gray{ color: #666; }
+.text-white{ color: #FFF; }
